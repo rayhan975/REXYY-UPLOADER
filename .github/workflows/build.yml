@@ -1,3 +1,4 @@
+
 name: Build Rexyy APK
 
 on:
@@ -19,6 +20,13 @@ jobs:
           distribution: temurin
           java-version: "17"
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK 35
+        run: |
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
@@ -26,12 +34,15 @@ jobs:
 
       - name: Extract source zip
         run: |
-          ZIP_FILE=$(find . -maxdepth 1 -name "*.zip" | head -1)
-          echo "ZIP ditemukan: $ZIP_FILE"
-          if [ -z "$ZIP_FILE" ]; then
-            echo "ERROR: Tidak ada file zip di repo!"
+          ZIP_FILE="RexyyUploader-FullSource-v4.0.zip"
+
+          if [ ! -f "$ZIP_FILE" ]; then
+            echo "ERROR: File $ZIP_FILE tidak ditemukan!"
+            ls -la
             exit 1
           fi
+
+          echo "ZIP ditemukan: $ZIP_FILE"
           unzip -o "$ZIP_FILE" -d source
 
       - name: Build APK
