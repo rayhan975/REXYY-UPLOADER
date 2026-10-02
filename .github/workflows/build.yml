@@ -26,18 +26,12 @@ jobs:
 
       - name: Extract source zip
         run: |
-          unzip -o RexyyUploader-FullSource.zip -d source
-          echo "=== Semua file gradle ==="
-          find source -name "*.gradle*" | head -30
+          unzip -o RexyyUploader-FullSource-v4_0.zip -d source
+          echo "=== Struktur folder ==="
+          find source -type f | sort
 
       - name: Build APK
         run: |
-          echo "=== Cari settings.gradle.kts ==="
-          find source -name "settings.gradle.kts" -type f
-
-          echo "=== Cari settings.gradle ==="
-          find source -name "settings.gradle" -type f
-
           SETTINGS_FILE=$(find source -name "settings.gradle.kts" -type f | head -1)
           if [ -z "$SETTINGS_FILE" ]; then
             SETTINGS_FILE=$(find source -name "settings.gradle" -type f | head -1)
@@ -45,7 +39,6 @@ jobs:
 
           if [ -z "$SETTINGS_FILE" ]; then
             echo "ERROR: settings.gradle tidak ditemukan!"
-            find source -maxdepth 6 -type f | head -30
             exit 1
           fi
 
