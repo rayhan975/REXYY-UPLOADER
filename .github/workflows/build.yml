@@ -26,36 +26,22 @@ jobs:
 
       - name: Extract source zip
         run: |
-          unzip -o RexyyUploader-FullSource-v4_0.zip -d source
-          echo "=== Struktur folder ==="
-          find source -type f | sort
+          ZIP_FILE=$(find . -maxdepth 1 -name "*.zip" | head -1)
+          echo "ZIP ditemukan: $ZIP_FILE"
+          if [ -z "$ZIP_FILE" ]; then
+            echo "ERROR: Tidak ada file zip di repo!"
+            exit 1
+          fi
+          unzip -o "$ZIP_FILE" -d source
 
       - name: Build APK
         run: |
-          SETTINGS_FILE=$(find source -name "settings.gradle.kts" -type f | head -1)
-          if [ -z "$SETTINGS_FILE" ]; then
-            SETTINGS_FILE=$(find source -name "settings.gradle" -type f | head -1)
-          fi
-
-          if [ -z "$SETTINGS_FILE" ]; then
-            echo "ERROR: settings.gradle tidak ditemukan!"
-            exit 1
-          fi
-
-          PROJECT_DIR=$(dirname "$SETTINGS_FILE")
-          echo "Project ditemukan di: $PROJECT_DIR"
-          cd "$PROJECT_DIR"
-
-          if [ -f "gradlew" ]; then
-            chmod +x gradlew
-            ./gradlew --no-daemon assembleDebug
-          else
-            gradle --no-daemon assembleDebug
-          fi
+          cd source/RexyyUploader-FullSource-v4.0
+          gradle --no-daemon assembleDebug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: RexyyUploader-debug
-          path: source/**/app/build/outputs/apk/debug/app-debug.apk
+          path: source/RexyyUploader-FullSource-v4.0/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
