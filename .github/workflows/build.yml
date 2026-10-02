@@ -8,30 +8,43 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
-      - name: Extract source
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: "8.9"
+
+      - name: Extract source zip
         run: |
           unzip -o RexyyUploader-FullSource.zip -d source
-
-      - name: Install Gradle
-        run: |
-          curl -L https://services.gradle.org/distributions/gradle-8.9-bin.zip -o gradle.zip
-          unzip -q gradle.zip
-          echo "$GITHUB_WORKSPACE/gradle-8.9/bin" >> "$GITHUB_PATH"
+          echo "=== Struktur folder ==="
+          find source -maxdepth 5 -name "build.gradle*" -o -name "gradlew" | head -20
 
       - name: Build APK
         run: |
-          cd source/RexyyUploader/ReyyyUploader
-          gradle --no-daemon assembleDebug
+          PROJECT_DIR=$(find source -name "settings.gradle.kts" -type f | head -1 | xargs dirname)
+          echo "Project ditemukan di: $PROJECT_DIR"
+          cd "$PROJECT_DIR"
+          if [ -f "gradlew" ]; then
+            chmod +x gradlew
+            ./gradlew --no-daemon assembleDebug
+          else
+            gradle --no-daemon assembleDebug
+          fi
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
         with:
           name: RexyyUploader-debug
-          path: source/RexyyUploader/ReyyyUploader/app/build/outputs/apk/debug/app-debug.apk
+          path: source/**/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
