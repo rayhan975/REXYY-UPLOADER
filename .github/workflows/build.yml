@@ -27,14 +27,32 @@ jobs:
       - name: Extract source zip
         run: |
           unzip -o RexyyUploader-FullSource.zip -d source
-          echo "=== Struktur folder ==="
-          find source -maxdepth 5 -name "build.gradle*" -o -name "gradlew" | head -20
+          echo "=== Semua file gradle ==="
+          find source -name "*.gradle*" | head -30
 
       - name: Build APK
         run: |
-          PROJECT_DIR=$(find source -name "settings.gradle.kts" -type f | head -1 | xargs dirname)
+          echo "=== Cari settings.gradle.kts ==="
+          find source -name "settings.gradle.kts" -type f
+
+          echo "=== Cari settings.gradle ==="
+          find source -name "settings.gradle" -type f
+
+          SETTINGS_FILE=$(find source -name "settings.gradle.kts" -type f | head -1)
+          if [ -z "$SETTINGS_FILE" ]; then
+            SETTINGS_FILE=$(find source -name "settings.gradle" -type f | head -1)
+          fi
+
+          if [ -z "$SETTINGS_FILE" ]; then
+            echo "ERROR: settings.gradle tidak ditemukan!"
+            find source -maxdepth 6 -type f | head -30
+            exit 1
+          fi
+
+          PROJECT_DIR=$(dirname "$SETTINGS_FILE")
           echo "Project ditemukan di: $PROJECT_DIR"
           cd "$PROJECT_DIR"
+
           if [ -f "gradlew" ]; then
             chmod +x gradlew
             ./gradlew --no-daemon assembleDebug
