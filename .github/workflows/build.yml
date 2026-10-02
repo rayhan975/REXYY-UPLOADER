@@ -28,10 +28,10 @@ jobs:
 
       - name: Build APK
         run: |
-          cd source/ReyyyUploader
+          cd source/RexyyUploader/ReyyyUploader
           gradle --no-daemon assembleDebug
 
       - uses: actions/upload-artifact@v4
         with:
           name: RexyyUploader-debug
-          path: source/ReyyyUploader/app/build/outputs/apk/debug/app-debug.apk
+          path: source/RexyyUploader/ReyyyUploader/app/build/outputs/apk/debug/app-debug.apk
