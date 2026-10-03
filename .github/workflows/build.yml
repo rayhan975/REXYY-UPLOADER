@@ -55,6 +55,18 @@ jobs:
           echo "ZIP ditemukan: $ZIP_FILE"
           unzip -o "$ZIP_FILE" -d source
 
+      - name: Fix splash screen theme
+        run: |
+          cat > source/RexyyUploader-FullSource-v4.0/app/src/main/res/values-v31/styles.xml << 'EOF'
+          <resources>
+              <style name="Theme.Rexyy" parent="android:style/Theme.Material.Light.NoActionBar">
+                  <item name="android:windowLightStatusBar">false</item>
+                  <item name="android:statusBarColor">#07080D</item>
+                  <item name="android:navigationBarColor">#07080D</item>
+              </style>
+          </resources>
+          EOF
+
       - name: Generate Gradle Wrapper
         run: |
           cd source/RexyyUploader-FullSource-v4.0
